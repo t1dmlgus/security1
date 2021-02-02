@@ -10,21 +10,40 @@ package com.t1dmlgus.security1.config.auth;
 // Security Session => Authentication -> UserDetails(PrincipalDetail)
 
 import com.t1dmlgus.security1.model.User;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
-public class PrincipalDetail implements UserDetails {
+@Data
+public class PrincipalDetail implements UserDetails, OAuth2User {
 
     private User user;  // 컴포지션
+    private Map<String, Object> attributes;
 
-
+    
+    
+    // 일반 로그인
     public PrincipalDetail(User user) {
         this.user = user;
     }
+
+
+    // OAuth 로그인
+    public PrincipalDetail(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
+
+
+
+    // UserDetails Override ---------------------------------------------------------------------------
+
 
 
     // 해당 User의 권한 을 리턴하는 곳!
@@ -84,5 +103,21 @@ public class PrincipalDetail implements UserDetails {
         // 현재시간 - 로그인시간 = 1시간 초과하면 -> return false;
 
         return true;
+    }
+
+
+
+    // OAuth2User Override ---------------------------------------------------------------------------
+
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+
+    @Override
+    public String getName() {
+        return null;
     }
 }
